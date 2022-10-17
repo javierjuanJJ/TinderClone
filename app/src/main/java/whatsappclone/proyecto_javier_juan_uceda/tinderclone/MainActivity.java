@@ -11,7 +11,7 @@ import com.lorentzos.flingswipe.SwipeFlingAdapterView;
 
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends ParentActivity {
     private ArrayList<String> al;
     private ArrayAdapter<String> arrayAdapter;
     private int i;
@@ -34,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
         arrayAdapter = new ArrayAdapter<>(this, R.layout.item, R.id.helloText, al );
 
 
-        SwipeFlingAdapterView flingContainer = (SwipeFlingAdapterView) findViewById(R.id.frame);
+        SwipeFlingAdapterView flingContainer = findViewById(R.id.frame);
 
         flingContainer.setAdapter(arrayAdapter);
         flingContainer.setFlingListener(new SwipeFlingAdapterView.onFlingListener() {
@@ -51,12 +51,12 @@ public class MainActivity extends AppCompatActivity {
                 //Do something on the left!
                 //You also have access to the original object.
                 //If you want to use it just cast it (String) dataObject
-                Toast.makeText(MainActivity.this, "Left", Toast.LENGTH_SHORT).show();
+                makeToast("Left");
             }
 
             @Override
             public void onRightCardExit(Object dataObject) {
-                Toast.makeText(MainActivity.this, "Right", Toast.LENGTH_SHORT).show();
+                makeToast("Right");
             }
 
             @Override
@@ -78,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
         flingContainer.setOnItemClickListener(new SwipeFlingAdapterView.OnItemClickListener() {
             @Override
             public void onItemClicked(int itemPosition, Object dataObject) {
-                Toast.makeText(MainActivity.this, "Item Clicked", Toast.LENGTH_SHORT).show();
+                makeToast("Item Clicked");
             }
         });
 
