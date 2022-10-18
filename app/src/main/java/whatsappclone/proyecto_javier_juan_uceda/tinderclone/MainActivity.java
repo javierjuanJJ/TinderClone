@@ -29,6 +29,9 @@ public class MainActivity extends ParentActivity implements View.OnClickListener
     private String oppositeUserSex;
     private Button logOut;
     SwipeFlingAdapterView flingContainer;
+    private String currentUId;
+
+    private DatabaseReference usersDb;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,8 +39,10 @@ public class MainActivity extends ParentActivity implements View.OnClickListener
 
         setUI();
 
-        mAuth = FirebaseAuth.getInstance();
+        usersDb = FirebaseDatabase.getInstance().getReference().child("Users");
 
+        mAuth = FirebaseAuth.getInstance();
+        currentUId = mAuth.getCurrentUser().getUid();
         al = new ArrayList<>();
 
         arrayAdapter = new ArrayAdapter<>(this, R.layout.item, R.id.helloText, al );
@@ -61,6 +66,8 @@ public class MainActivity extends ParentActivity implements View.OnClickListener
                 //You also have access to the original object.
                 //If you want to use it just cast it (String) dataObject
                 makeToast("Left");
+                String userId = dataObject.toString();
+                usersDb.child(userId).child("connections").child("nope").child(currentUId).setValue(true);
             }
 
             @Override
@@ -93,6 +100,7 @@ public class MainActivity extends ParentActivity implements View.OnClickListener
                 if (dataSnapshot.getKey().equals(user.getUid())){
                     userSex = "Male";
                     oppositeUserSex = "Female";
+                    usersDb = usersDb.child(oppositeUserSex);
                     getOppositeSexUsers();
                 }
             }
@@ -118,6 +126,7 @@ public class MainActivity extends ParentActivity implements View.OnClickListener
                 if (dataSnapshot.getKey().equals(user.getUid())){
                     userSex = "Female";
                     oppositeUserSex = "Male";
+                    usersDb = usersDb.child(oppositeUserSex);
                     getOppositeSexUsers();
                 }
             }
@@ -151,8 +160,9 @@ public class MainActivity extends ParentActivity implements View.OnClickListener
         oppositeSexDb.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                if (dataSnapshot.exists()){
-                    al.add(dataSnapshot.child("name").getValue().toString());
+                if (dataSnapshot.exists() && !dataSnapshot.child("connections").child("nope").hasChild(currentUId) && !dataSnapshot.child("connections").child("yeps").hasChild(currentUId)){
+                    //al.add(dataSnapshot.child("name").getValue().toString());
+                    al.add(dataSnapshot.getKey());
                     arrayAdapter.notifyDataSetChanged();
                 }
             }
