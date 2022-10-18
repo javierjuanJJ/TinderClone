@@ -1,13 +1,11 @@
 package whatsappclone.proyecto_javier_juan_uceda.tinderclone;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.Toast;
+import android.widget.ListView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -19,10 +17,11 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.lorentzos.flingswipe.SwipeFlingAdapterView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends ParentActivity implements View.OnClickListener, SwipeFlingAdapterView.OnItemClickListener {
-    private ArrayList<String> al;
-    private ArrayAdapter<String> arrayAdapter;
+    private Cards[] cards_data;
+    private arrayAdapter arrayAdapter;
     private int i;
     private FirebaseAuth mAuth;
     private String userSex;
@@ -30,6 +29,9 @@ public class MainActivity extends ParentActivity implements View.OnClickListener
     private Button logOut;
     SwipeFlingAdapterView flingContainer;
     private String currentUId;
+
+    ListView listView;
+    List<Cards> rowItems;
 
     private DatabaseReference usersDb;
     @Override
@@ -43,9 +45,9 @@ public class MainActivity extends ParentActivity implements View.OnClickListener
 
         mAuth = FirebaseAuth.getInstance();
         currentUId = mAuth.getCurrentUser().getUid();
-        al = new ArrayList<>();
+        rowItems  = new ArrayList<>();
 
-        arrayAdapter = new ArrayAdapter<>(this, R.layout.item, R.id.helloText, al );
+        arrayAdapter = new arrayAdapter(this, R.layout.item, rowItems );
 
 
         flingContainer = findViewById(R.id.frame);
@@ -56,7 +58,7 @@ public class MainActivity extends ParentActivity implements View.OnClickListener
             public void removeFirstObjectInAdapter() {
                 // this is the simplest way to delete an object from the Adapter (/AdapterView)
                 Log.d("LIST", "removed object!");
-                al.remove(0);
+                rowItems.remove(0);
                 arrayAdapter.notifyDataSetChanged();
             }
 
@@ -65,13 +67,20 @@ public class MainActivity extends ParentActivity implements View.OnClickListener
                 //Do something on the left!
                 //You also have access to the original object.
                 //If you want to use it just cast it (String) dataObject
+                Cards obj = (Cards) dataObject;
+                String userId = obj.getUserId();
+                usersDb.child(oppositeUserSex).child(userId).child("connections").child("nope").child(currentUId).setValue(true);
+
                 makeToast("Left");
-                String userId = dataObject.toString();
-                usersDb.child(userId).child("connections").child("nope").child(currentUId).setValue(true);
+
             }
 
             @Override
             public void onRightCardExit(Object dataObject) {
+                Cards obj = (Cards) dataObject;
+                String userId = obj.getUserId();
+                usersDb.child(oppositeUserSex).child(userId).child("connections").child("yeps").child(currentUId).setValue(true);
+
                 makeToast("Right");
             }
 
@@ -100,7 +109,6 @@ public class MainActivity extends ParentActivity implements View.OnClickListener
                 if (dataSnapshot.getKey().equals(user.getUid())){
                     userSex = "Male";
                     oppositeUserSex = "Female";
-                    usersDb = usersDb.child(oppositeUserSex);
                     getOppositeSexUsers();
                 }
             }
@@ -126,7 +134,6 @@ public class MainActivity extends ParentActivity implements View.OnClickListener
                 if (dataSnapshot.getKey().equals(user.getUid())){
                     userSex = "Female";
                     oppositeUserSex = "Male";
-                    usersDb = usersDb.child(oppositeUserSex);
                     getOppositeSexUsers();
                 }
             }
@@ -161,8 +168,8 @@ public class MainActivity extends ParentActivity implements View.OnClickListener
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 if (dataSnapshot.exists() && !dataSnapshot.child("connections").child("nope").hasChild(currentUId) && !dataSnapshot.child("connections").child("yeps").hasChild(currentUId)){
-                    //al.add(dataSnapshot.child("name").getValue().toString());
-                    al.add(dataSnapshot.getKey());
+                    Cards item = new Cards(dataSnapshot.getKey(), dataSnapshot.child("name").getValue().toString());
+                    rowItems.add(item);
                     arrayAdapter.notifyDataSetChanged();
                 }
             }
