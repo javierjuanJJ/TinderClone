@@ -7,10 +7,14 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 public abstract class ParentActivity extends AppCompatActivity {
-    public void GoToScreen(Context screenFrom, Class<?> screenDestiny){
+    private void GoToScreen(Context screenFrom, Class<?> screenDestiny){
         Intent intent = new Intent(screenFrom, screenDestiny);
         startActivity(intent);
         finish();
+    }
+
+    public void GoToScreen(Class<?> screenDestiny){
+        GoToScreen(this, screenDestiny);
     }
 
     public void makeToast(CharSequence text){

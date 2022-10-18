@@ -62,7 +62,7 @@ public class LoginActivity extends ParentActivity implements View.OnClickListene
         final FirebaseUser user = firebaseAuth.getCurrentUser();
 
         if (user != null){
-            GoToScreen(this, MainActivity.class);
+            GoToScreen(MainActivity.class);
         }
         else {
             Log.i("User","user is null");

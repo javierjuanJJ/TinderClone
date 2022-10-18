@@ -30,10 +30,10 @@ public class ChooseLoginRegistrationActivity extends ParentActivity implements V
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.login:
-                GoToScreen(this, LoginActivity.class);
+                GoToScreen(LoginActivity.class);
                 break;
             case R.id.register:
-                GoToScreen(this, RegistrationActivity.class);
+                GoToScreen(RegistrationActivity.class);
                 break;
         }
     }
