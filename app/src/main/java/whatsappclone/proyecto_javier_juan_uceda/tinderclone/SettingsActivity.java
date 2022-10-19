@@ -74,14 +74,18 @@ public class SettingsActivity extends ParentActivity implements View.OnClickList
         mAuth = FirebaseAuth.getInstance();
         userId = mAuth.getCurrentUser().getUid();
         mProfileImage.setOnClickListener(this);
+        mBack.setOnClickListener(this);
+        mConfirm.setOnClickListener(this);
 
         userId = mAuth.getCurrentUser().getUid();
 
-        Log.i("user", "User " + userSex + " " + userId);
+        if (userSex != null) {
+            Log.i("user", "User " + userSex + " " + userId);
 
-        mCustomerDatabase = FirebaseDatabase.getInstance().getReference().child("Users").child(userSex).child(userId);
+            mCustomerDatabase = FirebaseDatabase.getInstance().getReference().child("Users").child(userSex).child(userId);
 
-        getUserInfo();
+            getUserInfo();
+        }
 
     }
 
