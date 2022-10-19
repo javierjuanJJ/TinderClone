@@ -8,6 +8,8 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 
+import androidx.annotation.NonNull;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
@@ -104,7 +106,8 @@ public class MainActivity extends ParentActivity implements View.OnClickListener
     private void checkUserSex() {
         final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
-        DatabaseReference maleDb = FirebaseDatabase.getInstance().getReference().child("Users").child("Male");
+        DatabaseReference maleDb = FirebaseDatabase.getInstance().getReference().child("Users").child("Male").child(user.getUid());
+
         maleDb.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
@@ -112,7 +115,7 @@ public class MainActivity extends ParentActivity implements View.OnClickListener
                     userSex = "Male";
                     oppositeUserSex = "Female";
                     getOppositeSexUsers();
-                    Log.i("userMainActivity", "User " + userSex);
+                    Log.i("useronChildAdded", "User " + userSex);
                 }
             }
             @Override
@@ -138,6 +141,7 @@ public class MainActivity extends ParentActivity implements View.OnClickListener
                     userSex = "Female";
                     oppositeUserSex = "Male";
                     getOppositeSexUsers();
+                    Log.i("useronChildAdded", "User " + userSex);
                 }
             }
             @Override
@@ -192,7 +196,11 @@ public class MainActivity extends ParentActivity implements View.OnClickListener
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 if (dataSnapshot.exists() && !dataSnapshot.child("connections").child("nope").hasChild(currentUId) && !dataSnapshot.child("connections").child("yeps").hasChild(currentUId)){
-                    Cards item = new Cards(dataSnapshot.getKey(), dataSnapshot.child("name").getValue().toString());
+                    String profileImageUrl = "default";
+                    if (!dataSnapshot.child("profileImageUrl").getValue().equals("default")){
+                        profileImageUrl = dataSnapshot.child("profileImageUrl").getValue().toString();
+                    }
+                    Cards item = new Cards(dataSnapshot.getKey(), dataSnapshot.child("name").getValue().toString(), profileImageUrl);
                     rowItems.add(item);
                     arrayAdapter.notifyDataSetChanged();
                 }

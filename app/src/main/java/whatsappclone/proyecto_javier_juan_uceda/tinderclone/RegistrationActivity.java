@@ -20,6 +20,9 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class RegistrationActivity extends ParentActivity implements View.OnClickListener, FirebaseAuth.AuthStateListener, OnCompleteListener<AuthResult> {
 
     private Button mRegister;
@@ -28,6 +31,7 @@ public class RegistrationActivity extends ParentActivity implements View.OnClick
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener firebaseAuthStateListener;
     private RadioButton radioButton;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -92,9 +96,11 @@ public class RegistrationActivity extends ParentActivity implements View.OnClick
         }
         else {
             String userId = mAuth.getCurrentUser().getUid();
-            DatabaseReference currentUserDb = FirebaseDatabase.getInstance().getReference().child("Users").child(radioButton.getText().toString()).child(userId).child("name");
-            final String name = mName.getText().toString();
-            currentUserDb.setValue(name);
+            DatabaseReference currentUserDb = FirebaseDatabase.getInstance().getReference().child("Users").child(radioButton.getText().toString()).child(userId);
+            Map userInfo = new HashMap<>();
+            userInfo.put("name", mName.getText().toString());
+            userInfo.put("profileImageUrl", "default");
+            currentUserDb.updateChildren(userInfo);
         }
     }
 
