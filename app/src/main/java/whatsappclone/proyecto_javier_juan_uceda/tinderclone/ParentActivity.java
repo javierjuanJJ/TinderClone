@@ -6,9 +6,22 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public abstract class ParentActivity extends AppCompatActivity {
-    private void GoToScreen(Context screenFrom, Class<?> screenDestiny){
+
+    private Intent getIntent(Context screenFrom, Class<?> screenDestiny){
         Intent intent = new Intent(screenFrom, screenDestiny);
+        return intent;
+    }
+
+    private void GoToScreen(Context screenFrom, Class<?> screenDestiny){
+        startActivity(getIntent(screenFrom, screenDestiny));
+        finish();
+    }
+
+    public void GoToScreen(Intent intent){
         startActivity(intent);
         finish();
     }

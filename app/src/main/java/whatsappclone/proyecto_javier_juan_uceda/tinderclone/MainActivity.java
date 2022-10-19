@@ -1,5 +1,6 @@
 package whatsappclone.proyecto_javier_juan_uceda.tinderclone;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -21,13 +22,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends ParentActivity implements View.OnClickListener, SwipeFlingAdapterView.OnItemClickListener {
-    private Cards[] cards_data;
+    private Cards[] Cards_data;
     private arrayAdapter arrayAdapter;
     private int i;
     private FirebaseAuth mAuth;
     private String userSex;
     private String oppositeUserSex;
-    private Button logOut;
+    private Button logOut, goToSettings;
     SwipeFlingAdapterView flingContainer;
     private String currentUId;
 
@@ -41,23 +42,25 @@ public class MainActivity extends ParentActivity implements View.OnClickListener
         setContentView(R.layout.activity_main);
 
         setUI();
-
         usersDb = FirebaseDatabase.getInstance().getReference().child("Users");
 
         mAuth = FirebaseAuth.getInstance();
         currentUId = mAuth.getCurrentUser().getUid();
-        rowItems  = new ArrayList<>();
+
+
+
+
+
+        rowItems = new ArrayList<Cards>();
 
         arrayAdapter = new arrayAdapter(this, R.layout.item, rowItems );
 
-
-        flingContainer = findViewById(R.id.frame);
+        flingContainer = (SwipeFlingAdapterView) findViewById(R.id.frame);
 
         flingContainer.setAdapter(arrayAdapter);
         flingContainer.setFlingListener(new SwipeFlingAdapterView.onFlingListener() {
             @Override
             public void removeFirstObjectInAdapter() {
-                // this is the simplest way to delete an object from the Adapter (/AdapterView)
                 Log.d("LIST", "removed object!");
                 rowItems.remove(0);
                 arrayAdapter.notifyDataSetChanged();
@@ -65,15 +68,11 @@ public class MainActivity extends ParentActivity implements View.OnClickListener
 
             @Override
             public void onLeftCardExit(Object dataObject) {
-                //Do something on the left!
-                //You also have access to the original object.
-                //If you want to use it just cast it (String) dataObject
+
                 Cards obj = (Cards) dataObject;
                 String userId = obj.getUserId();
                 usersDb.child(oppositeUserSex).child(userId).child("connections").child("nope").child(currentUId).setValue(true);
-
                 makeToast("Left");
-
             }
 
             @Override
@@ -87,7 +86,6 @@ public class MainActivity extends ParentActivity implements View.OnClickListener
 
             @Override
             public void onAdapterAboutToEmpty(int itemsInAdapter) {
-
             }
 
             @Override
@@ -95,6 +93,9 @@ public class MainActivity extends ParentActivity implements View.OnClickListener
             }
         });
 
+
+        // Optionally add an OnItemClickListener
+        flingContainer.setOnItemClickListener(this);
 
         checkUserSex();
 
@@ -111,6 +112,7 @@ public class MainActivity extends ParentActivity implements View.OnClickListener
                     userSex = "Male";
                     oppositeUserSex = "Female";
                     getOppositeSexUsers();
+                    Log.i("userMainActivity", "User " + userSex);
                 }
             }
             @Override
@@ -160,7 +162,10 @@ public class MainActivity extends ParentActivity implements View.OnClickListener
 
     private void setUI() {
         logOut = findViewById(R.id.logOut);
+        goToSettings = findViewById(R.id.goToSettings);
+
         logOut.setOnClickListener(this);
+        goToSettings.setOnClickListener(this);
     }
 
     private void isConnectionMatch(String userId) {
@@ -218,7 +223,21 @@ public class MainActivity extends ParentActivity implements View.OnClickListener
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.logOut: logoutUser();break;
+            case R.id.goToSettings: goToSettings();break;
         }
+    }
+
+    private void goToSettings() {
+        Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+
+        if (userSex == null) {
+            checkUserSex();
+            Log.i("userMainActivity", "User " + userSex);
+        }
+
+
+        intent.putExtra("userSex", userSex);
+        GoToScreen(intent);
     }
 
     @Override
