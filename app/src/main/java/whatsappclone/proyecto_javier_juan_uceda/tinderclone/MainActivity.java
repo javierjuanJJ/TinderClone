@@ -198,7 +198,7 @@ public class MainActivity extends ParentActivity implements View.OnClickListener
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 if (dataSnapshot.exists() && !dataSnapshot.child("connections").child("nope").hasChild(currentUId) && !dataSnapshot.child("connections").child("yeps").hasChild(currentUId)){
                     String profileImageUrl = "default";
-                    if (!dataSnapshot.child("profileImageUrl").getValue().equals("default")){
+                    if (dataSnapshot.child("profileImageUrl").getValue() != null && !dataSnapshot.child("profileImageUrl").getValue().equals("default")){
                         profileImageUrl = dataSnapshot.child("profileImageUrl").getValue().toString();
                     }
                     Cards item = new Cards(dataSnapshot.getKey(), dataSnapshot.child("name").getValue().toString(), profileImageUrl);

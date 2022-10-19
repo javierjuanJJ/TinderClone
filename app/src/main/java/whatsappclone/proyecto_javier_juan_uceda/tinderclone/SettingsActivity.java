@@ -201,9 +201,8 @@ public class SettingsActivity extends ParentActivity implements View.OnClickList
         Map userInfo = new HashMap();
         userInfo.put("profileImageUrl", downloadUrl.toString());
         mCustomerDatabase.updateChildren(userInfo);
-
+        makeToast("Updated");
         finish();
-        return;
     }
 
     @Override

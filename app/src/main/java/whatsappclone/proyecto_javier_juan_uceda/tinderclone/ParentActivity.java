@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.widget.Toast;
 
+import androidx.annotation.StringRes;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.HashMap;
@@ -32,5 +33,8 @@ public abstract class ParentActivity extends AppCompatActivity {
 
     public void makeToast(CharSequence text){
         Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
+    }
+    public void makeToast(@StringRes int id){
+        makeToast(getString(id));
     }
 }
