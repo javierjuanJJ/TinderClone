@@ -10,6 +10,7 @@ import android.widget.ListView;
 
 import androidx.annotation.NonNull;
 
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
@@ -106,7 +107,7 @@ public class MainActivity extends ParentActivity implements View.OnClickListener
     private void checkUserSex() {
         final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
-        DatabaseReference maleDb = FirebaseDatabase.getInstance().getReference().child("Users").child("Male").child(user.getUid());
+        DatabaseReference maleDb = FirebaseDatabase.getInstance().getReference().child("Users").child("Male");
 
         maleDb.addChildEventListener(new ChildEventListener() {
             @Override
@@ -237,13 +238,6 @@ public class MainActivity extends ParentActivity implements View.OnClickListener
 
     private void goToSettings() {
         Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
-
-        if (userSex == null) {
-            checkUserSex();
-            Log.i("userMainActivity", "User " + userSex);
-        }
-
-
         intent.putExtra("userSex", userSex);
         GoToScreen(intent);
     }
