@@ -46,10 +46,10 @@ public class MatchesActivity extends ParentActivity {
         mRecyclerView.setLayoutManager(mMatchesLayoutManager);
         mMatchesAdapter = new MatchesAdapter(getDataSetMatches(), MatchesActivity.this);
         mRecyclerView.setAdapter(mMatchesAdapter);
-
+        getUserMatchId();
         mMatchesAdapter.notifyDataSetChanged();
 
-        getUserMatchId();
+
 
     }
 
