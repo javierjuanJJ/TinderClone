@@ -1,7 +1,6 @@
 package whatsappclone.proyecto_javier_juan_uceda.tinderclone;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -20,8 +19,6 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -45,12 +42,11 @@ public class SettingsActivity extends ParentActivity implements View.OnClickList
     private ImageView mProfileImage;
 
     private FirebaseAuth mAuth;
-    private DatabaseReference mCustomerDatabase;
+    private DatabaseReference mUserDatabase;
 
-    private String userId, name, phone, profileImageUrl;
+    private String userId, name, phone, profileImageUrl,userSex;
 
     private Uri resultUri;
-    private String userSex;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,7 +56,6 @@ public class SettingsActivity extends ParentActivity implements View.OnClickList
     }
 
     private void setUI() {
-        userSex = getIntent().getExtras().getString("userSex");
 
         mNameField = findViewById(R.id.name);
         mPhoneField = findViewById(R.id.phone);
@@ -79,13 +74,11 @@ public class SettingsActivity extends ParentActivity implements View.OnClickList
 
         userId = mAuth.getCurrentUser().getUid();
 
-        if (userSex != null) {
-            Log.i("user", "User " + userSex + " " + userId);
+        Log.i("user", "User " + userSex + " " + userId);
 
-            mCustomerDatabase = FirebaseDatabase.getInstance().getReference().child("Users").child(userSex).child(userId);
+        mUserDatabase = FirebaseDatabase.getInstance().getReference().child("Users").child(userId);
 
-            getUserInfo();
-        }
+        getUserInfo();
 
     }
 
@@ -110,7 +103,7 @@ public class SettingsActivity extends ParentActivity implements View.OnClickList
     }
 
     private void getUserInfo() {
-        mCustomerDatabase.addListenerForSingleValueEvent(this);
+        mUserDatabase.addListenerForSingleValueEvent(this);
 
     }
 
@@ -121,7 +114,8 @@ public class SettingsActivity extends ParentActivity implements View.OnClickList
         Map userInfo = new HashMap();
         userInfo.put("name", name);
         userInfo.put("phone", phone);
-        mCustomerDatabase.updateChildren(userInfo);
+        mUserDatabase.updateChildren(userInfo);
+        Log.i("imageResultUri", String.valueOf((resultUri!=null)));
         if(resultUri != null){
             StorageReference filepath = FirebaseStorage.getInstance().getReference().child("profileImages").child(userId);
             Bitmap bitmap = null;
@@ -160,6 +154,9 @@ public class SettingsActivity extends ParentActivity implements View.OnClickList
             if(map.get("phone")!=null){
                 phone = map.get("phone").toString();
                 mPhoneField.setText(phone);
+            }
+            if(map.get("sex")!=null){
+                userSex = map.get("sex").toString();
             }
             Glide.with(getApplication()).clear(mProfileImage);
             if(map.get("profileImageUrl")!=null){
@@ -204,7 +201,7 @@ public class SettingsActivity extends ParentActivity implements View.OnClickList
 
         Map userInfo = new HashMap();
         userInfo.put("profileImageUrl", downloadUrl.toString());
-        mCustomerDatabase.updateChildren(userInfo);
+        mUserDatabase.updateChildren(userInfo);
         makeToast("Updated");
         finish();
     }

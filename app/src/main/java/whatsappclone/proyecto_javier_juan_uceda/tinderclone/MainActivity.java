@@ -24,7 +24,7 @@ import com.lorentzos.flingswipe.SwipeFlingAdapterView;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends ParentActivity implements View.OnClickListener, SwipeFlingAdapterView.OnItemClickListener {
+public class MainActivity extends ParentActivity implements View.OnClickListener, SwipeFlingAdapterView.OnItemClickListener, ValueEventListener {
     private Cards[] Cards_data;
     private arrayAdapter arrayAdapter;
     private int i;
@@ -74,7 +74,7 @@ public class MainActivity extends ParentActivity implements View.OnClickListener
 
                 Cards obj = (Cards) dataObject;
                 String userId = obj.getUserId();
-                usersDb.child(oppositeUserSex).child(userId).child("connections").child("nope").child(currentUId).setValue(true);
+                usersDb.child(userId).child("connections").child("nope").child(currentUId).setValue(true);
                 makeToast("Left");
             }
 
@@ -82,7 +82,7 @@ public class MainActivity extends ParentActivity implements View.OnClickListener
             public void onRightCardExit(Object dataObject) {
                 Cards obj = (Cards) dataObject;
                 String userId = obj.getUserId();
-                usersDb.child(oppositeUserSex).child(userId).child("connections").child("yeps").child(currentUId).setValue(true);
+                usersDb.child(userId).child("connections").child("yeps").child(currentUId).setValue(true);
                 isConnectionMatch(userId);
                 makeToast("Right");
             }
@@ -107,58 +107,8 @@ public class MainActivity extends ParentActivity implements View.OnClickListener
     private void checkUserSex() {
         final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
-        DatabaseReference maleDb = FirebaseDatabase.getInstance().getReference().child("Users").child("Male");
-
-        maleDb.addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                if (dataSnapshot.getKey().equals(user.getUid())){
-                    userSex = "Male";
-                    oppositeUserSex = "Female";
-                    getOppositeSexUsers();
-                    Log.i("useronChildAdded", "User " + userSex);
-                }
-            }
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-            }
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-            }
-        });
-
-        DatabaseReference femaleDb = FirebaseDatabase.getInstance().getReference().child("Users").child("Female");
-        femaleDb.addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                if (dataSnapshot.getKey().equals(user.getUid())){
-                    userSex = "Female";
-                    oppositeUserSex = "Male";
-                    getOppositeSexUsers();
-                    Log.i("useronChildAdded", "User " + userSex);
-                }
-            }
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-            }
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-            }
-        });
+        DatabaseReference userDb = usersDb.child(user.getUid());
+        userDb.addListenerForSingleValueEvent(this);
 
         // Optionally add an OnItemClickListener
         flingContainer.setOnItemClickListener(this);
@@ -174,14 +124,14 @@ public class MainActivity extends ParentActivity implements View.OnClickListener
     }
 
     private void isConnectionMatch(String userId) {
-        DatabaseReference currentUserConnectionsDb = usersDb.child(userSex).child(currentUId).child("connections").child("yeps").child(userId);
+        DatabaseReference currentUserConnectionsDb = usersDb.child(currentUId).child("connections").child("yeps").child(userId);
         currentUserConnectionsDb.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()){
                     makeToast("new Connection");
-                    usersDb.child(oppositeUserSex).child(dataSnapshot.getKey()).child("connections").child("matches").child(currentUId).setValue(true);
-                    usersDb.child(userSex).child(currentUId).child("connections").child("matches").child(dataSnapshot.getKey()).setValue(true);
+                    usersDb.child(dataSnapshot.getKey()).child("connections").child("matches").child(currentUId).setValue(true);
+                    usersDb.child(currentUId).child("connections").child("matches").child(dataSnapshot.getKey()).setValue(true);
                 }
             }
 
@@ -196,7 +146,7 @@ public class MainActivity extends ParentActivity implements View.OnClickListener
         oppositeSexDb.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                if (dataSnapshot.exists() && !dataSnapshot.child("connections").child("nope").hasChild(currentUId) && !dataSnapshot.child("connections").child("yeps").hasChild(currentUId)){
+                if (dataSnapshot.exists() && !dataSnapshot.child("connections").child("nope").hasChild(currentUId) && !dataSnapshot.child("connections").child("yeps").hasChild(currentUId) && dataSnapshot.child("sex").getValue().toString().equals(oppositeUserSex)){
                     String profileImageUrl = "default";
                     if (dataSnapshot.child("profileImageUrl").getValue() != null && !dataSnapshot.child("profileImageUrl").getValue().equals("default")){
                         profileImageUrl = dataSnapshot.child("profileImageUrl").getValue().toString();
@@ -237,13 +187,49 @@ public class MainActivity extends ParentActivity implements View.OnClickListener
     }
 
     private void goToSettings() {
-        Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
-        intent.putExtra("userSex", userSex);
-        GoToScreen(intent);
+        GoToScreen(SettingsActivity.class);
     }
 
     @Override
     public void onItemClicked(int i, Object o) {
         makeToast("Item Clicked");
+    }
+
+    /**
+     * This method will be called with a snapshot of the data at this location. It will also be called
+     * each time that data changes.
+     *
+     * @param snapshot The current data at the location
+     */
+    @Override
+    public void onDataChange(@NonNull DataSnapshot snapshot) {
+        if (snapshot.exists()){
+            if (snapshot.child("sex").getValue() != null){
+                userSex = snapshot.child("sex").getValue().toString();
+                switch (userSex){
+                    case "Male":
+                        oppositeUserSex = "Female";
+                        break;
+                    case "Female":
+                        oppositeUserSex = "Male";
+                        break;
+                }
+                getOppositeSexUsers();
+            }
+        }
+    }
+
+    /**
+     * This method will be triggered in the event that this listener either failed at the server, or
+     * is removed as a result of the security and Firebase Database rules. For more information on
+     * securing your data, see: <a
+     * href="https://firebase.google.com/docs/database/security/quickstart" target="_blank"> Security
+     * Quickstart</a>
+     *
+     * @param error A description of the error that occurred
+     */
+    @Override
+    public void onCancelled(@NonNull DatabaseError error) {
+
     }
 }
