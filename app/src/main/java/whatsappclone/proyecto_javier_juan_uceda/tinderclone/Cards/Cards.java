@@ -1,4 +1,4 @@
-package whatsappclone.proyecto_javier_juan_uceda.tinderclone;
+package whatsappclone.proyecto_javier_juan_uceda.tinderclone.Cards;
 
 public class Cards {
     private String userId;

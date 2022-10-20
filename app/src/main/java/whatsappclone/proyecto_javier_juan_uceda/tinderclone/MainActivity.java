@@ -1,16 +1,13 @@
 package whatsappclone.proyecto_javier_juan_uceda.tinderclone;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 
 import androidx.annotation.NonNull;
 
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
@@ -24,14 +21,18 @@ import com.lorentzos.flingswipe.SwipeFlingAdapterView;
 import java.util.ArrayList;
 import java.util.List;
 
+import whatsappclone.proyecto_javier_juan_uceda.tinderclone.Cards.Cards;
+import whatsappclone.proyecto_javier_juan_uceda.tinderclone.Cards.arrayAdapter;
+import whatsappclone.proyecto_javier_juan_uceda.tinderclone.Matches.MatchesActivity;
+
 public class MainActivity extends ParentActivity implements View.OnClickListener, SwipeFlingAdapterView.OnItemClickListener, ValueEventListener {
     private Cards[] Cards_data;
-    private arrayAdapter arrayAdapter;
+    private whatsappclone.proyecto_javier_juan_uceda.tinderclone.Cards.arrayAdapter arrayAdapter;
     private int i;
     private FirebaseAuth mAuth;
     private String userSex;
     private String oppositeUserSex;
-    private Button logOut, goToSettings;
+    private Button logOut, goToSettings, goToMatches;
     SwipeFlingAdapterView flingContainer;
     private String currentUId;
 
@@ -39,6 +40,7 @@ public class MainActivity extends ParentActivity implements View.OnClickListener
     List<Cards> rowItems;
 
     private DatabaseReference usersDb;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -104,6 +106,10 @@ public class MainActivity extends ParentActivity implements View.OnClickListener
 
     }
 
+    public void goToMatches() {
+        GoToScreen(MatchesActivity.class);
+    }
+
     private void checkUserSex() {
         final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
@@ -118,9 +124,11 @@ public class MainActivity extends ParentActivity implements View.OnClickListener
     private void setUI() {
         logOut = findViewById(R.id.logOut);
         goToSettings = findViewById(R.id.goToSettings);
+        goToMatches = findViewById(R.id.goToMatches);
 
         logOut.setOnClickListener(this);
         goToSettings.setOnClickListener(this);
+        goToMatches.setOnClickListener(this);
     }
 
     private void isConnectionMatch(String userId) {
@@ -183,6 +191,7 @@ public class MainActivity extends ParentActivity implements View.OnClickListener
         switch (view.getId()){
             case R.id.logOut: logoutUser();break;
             case R.id.goToSettings: goToSettings();break;
+            case R.id.goToMatches: goToMatches();break;
         }
     }
 

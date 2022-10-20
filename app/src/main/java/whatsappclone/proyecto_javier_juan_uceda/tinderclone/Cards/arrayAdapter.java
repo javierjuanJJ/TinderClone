@@ -1,4 +1,4 @@
-package whatsappclone.proyecto_javier_juan_uceda.tinderclone;
+package whatsappclone.proyecto_javier_juan_uceda.tinderclone.Cards;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -9,11 +9,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 import java.util.List;
 
-class arrayAdapter extends ArrayAdapter<Cards> {
+import whatsappclone.proyecto_javier_juan_uceda.tinderclone.R;
+
+public class arrayAdapter extends ArrayAdapter<Cards> {
    Context context;
 
    public arrayAdapter(Context context, int resourceId, List<Cards> items){
